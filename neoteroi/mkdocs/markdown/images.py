@@ -36,11 +36,10 @@ class Image:
         return props
 
 
-def build_image_html(parent, image: Image, skip_glightbox: bool = False):
+def build_image_html(parent, image: Image, extra_props: dict):
     props = image.get_props()
-    # adds the "skip-lightbox" class to the image
-    if skip_glightbox:
-        props["class"] = "off-glb"
+    for key, value in extra_props.items():
+        props[key] = value
 
     etree.SubElement(parent, "img", props)
 

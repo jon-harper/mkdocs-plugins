@@ -15,6 +15,7 @@ class CardsViewOptions:
     class_name: str = ""
     cols: int = 3
     image_bg: bool = False
+    lightbox: bool = False
 
     def __post_init__(self):
         if isinstance(self.cols, str):
@@ -84,13 +85,25 @@ class CardsHTMLBuilder:
             return
 
         if self.use_image_tags:
-            #If the card is a link, mark the image to be skipped by glightbox.
-            skip = isinstance(item.url, str) and item.url != ""
+            #set the alt tag from the card if not available
+            if isinstance(item.image.alt, str) and item.image.alt != '':
+                item.image.alt = item.title
+
+            extra_props = {}
+            
+            if self.options.lightbox:                
+                #If the card is a link, mark the image to be skipped by glightbox.
+                if isinstance(item.url, str) and item.url != "":
+                    extra_props["class"] = "off-glb"
+                else: #otherwise set the title and description from card data
+                    extra_props["data-title"] = item.title
+                    if item.content:
+                        extra_props["data-description"] = item.content
             build_image_html(
                 etree.SubElement(
                     wrapper_element, "div", {"class": "nt-card-image tags"}
                 ),
-                item.image, skip_glightbox=skip
+                item.image, extra_props 
             )
         else:
             etree.SubElement(
